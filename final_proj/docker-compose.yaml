@@ -1,0 +1,40 @@
+---
+version: "3"
+
+services:
+    redis-db:
+        image: redis:7
+        ports:
+            - 6379:6379
+        volumes:
+            - ./data:/data
+        user: "1000:1000"
+        command: [ "--save", "1", "1"]
+
+    api:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        command: ["python3", "api.py"]
+        depends_on:
+            - redis-db
+        image: mihirobendre/criminal_data_app:1.0
+        ports:
+            - 5000:5000
+        entrypoint: python3 api.py
+        environment:
+            - REDIS_IP=redis-db
+            - LOG_LEVEL=INFO
+    worker:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        command: ["python3", "worker.py"]
+        depends_on:
+            - redis-db
+        image: mihirobendre/jobs_worker:1.0
+        entrypoint: python3 worker.py
+        environment:
+            - REDIS_IP=redis-db
+            - LOG_LEVEL=INFO
+
