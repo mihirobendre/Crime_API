@@ -19,9 +19,13 @@ _redis_ip = 'redis-db'
 _redis_port = '6379'
 _list_of_jobs = []
 
+# These might not be needed, as we're importing them from jobs:
+'''
 rd = redis.Redis(host=_redis_ip, port=6379, db=0)
 q = HotQueue("queue", host=_redis_ip, port=6379, db=1)
 jdb = redis.Redis(host=_redis_ip, port=6379, db=2)
+'''
+
 res = redis.Redis(host=_redis_ip, port=6379, db = 3)
 
 url = 'https://data.austintexas.gov/resource/fdj4-gpfu.json'

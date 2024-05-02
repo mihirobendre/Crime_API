@@ -1,4 +1,3 @@
-
 import os
 import requests
 from flask import Flask, request, jsonify
@@ -7,6 +6,8 @@ import json
 from typing import Union, List, Dict
 from jobs import add_job, get_job_by_id, rd, return_all_jobids
 import logging
+from datetime import datetime
+
 
 # Read the value of the LOG_LEVEL environment variable
 log_level = os.getenv("LOG_LEVEL", "INFO")
@@ -69,9 +70,7 @@ def handle_data() -> Union[str, List[Dict[str, str]]]:
         return 'Not possible\n'
 
 
-
-
-@app.route('/data/all_values_for/<param>', methods=['GET'])
+@app.route('/all_values_for/<param>', methods=['GET'])
 def all_values_for(param):
     response = requests.get(url)
     
@@ -101,8 +100,8 @@ def all_values_for(param):
     return {"message": message,
             "all values": dict_of_values}
 
-
-@app.route('/data/all_data_for/<param>/<value>', methods=['GET'])
+# for categorical parameter
+@app.route('/all_data_for/<param>/<value>', methods=['GET'])
 def all_data_for(param, value):
     response = requests.get(url)
     list_of_data = []
@@ -122,9 +121,82 @@ def all_data_for(param, value):
     elif num_instances <= len(data):
         num_instances = str(num_instances)
         total_instances = str(len(data))
+        message = f"Out of a total of {total_instances} datapoints, {num_instances} contained the {param} field"
     return {"message": message,
             "all data": list_of_data}
 
+# for sequential parameters, like date (will also work for id?)
+
+# organize from date lowest to highest
+@app.route('/order/<order>/<param>', methods=['GET'])
+def org_by(param, order):
+    """
+    This endpoint organizes the data by a quantitative variable <param>. Although designed primarily for datetime variables, this function works on other quantitative variables as well.
+    
+    Parameters: param, order. 
+        param: the parameter which we're ordering the dataset by (for this function, this is a quantitative parameter)
+        order: this is either 'ascend' or 'descend'
+
+    Result: a json object containing the ordered 'data' along with a 'message' w/ information on how many of the datapoints contained <param>, the starting and ending values of the ordered dataset.
+
+    """
+    
+    try:
+        if order not in ["ascend", "descend"]:
+            raise ValueError("Invalid value for 'order'. Please use 'ascend' or 'descend'.")
+        else:
+            print("Valid value for 'order'.")
+    except ValueError as e:
+        print(e)
+    
+
+    # declaring variables
+    response = requests.get(url)
+    my_list_of_data = []
+    num_instances = 0
+    message = None
+    data = response.json()
+    list_of_dates = []
+    
+    
+    # populating list_of_dates
+    for item in data:
+        if param in list(item.keys()):
+            num_instances += 1
+            list_of_dates.append(item[str(param)])
+    
+    # sorting in ascending or descending order
+    if order == 'ascend':
+        sorted_list = sorted(list_of_dates)
+    elif order == 'descend':
+        sorted_list = sorted(list_of_dates, reverse=True)
+    
+    # sorting list of data in order
+    new_list = []
+    for date in sorted_list:
+        for item in data:
+            if param in list(item.keys()):
+                if item[str(param)] == str(date):
+                    new_list.append(item)
+                    break
+    
+    # formulating message, and associated params
+    starting_date = str(sorted_list[0])
+    ending_date = str(sorted_list[-1])
+
+    if num_instances == 0:
+        message = f"The field {param} isn't present in the data"
+    elif num_instances == len(data):
+        message = f"The field {param} was present in all datapoints. The starting value of {param} was {starting_date} and the ending value of {param} was {ending_date}, and the data was ordered in {order}ing order."
+    elif num_instances <= len(data):
+        num_instances = str(num_instances)
+        total_instances = str(len(data))
+        message = f"Out of a total of {total_instances} datapoints, {num_instances} contained the {param} field. The starting value of {param} was {starting_date} and the ending value of {param} was {ending_date}, and the data was ordered in {order}ing order."
+    
+    
+    # returning resulting data and message
+    return {'data': new_list,
+            'message': message}
 
 '''
 @app.route('/data/crime_type/<crime_type>', methods=['GET'])
@@ -176,11 +248,10 @@ def get_job(jobid):
 def calculate_result(jobid):
     # return computed outcome for that jobid
     try:
-        result = res.get(jobid) 
+        result = res.get(jobid)
         return result
     except TypeError:
         return "Cannot find key in results database"
-
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 5000, debug = True)

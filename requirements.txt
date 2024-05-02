@@ -2,3 +2,4 @@ Flask==3.0.2
 redis==5.0.1
 requests
 hotqueue==0.2.8
+pytest
