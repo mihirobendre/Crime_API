@@ -9,7 +9,8 @@ from jobs import (
     add_job,
     get_job_by_id,
     update_job_status,
-    return_all_jobids
+    return_all_jobids,
+    q
 )
 
 _redis_ip = 'redis-db'
@@ -48,10 +49,16 @@ def test_save_and_get_job(redis_connection):
     assert retrieved_job_dict == job_dict
 
 # Test _queue_job function
+# Test _queue_job function
 def test_queue_job(redis_connection):
     jid = _generate_jid()
     _queue_job(jid)
-    assert q.contains(jid)
+    # Retrieve all elements from the queue
+    queue_elements = redis_connection.lrange('queue', 0, -1)
+    # Convert byte strings to regular strings
+    queue_elements = [element.decode('utf-8') for element in queue_elements]
+    # Check if the job ID is present in the queue
+    assert jid in queue_elements
 
 # Test add_job function
 def test_add_job(redis_connection):
