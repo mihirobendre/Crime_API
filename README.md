@@ -30,16 +30,18 @@ Note: the environment variable in the Dockerfile is currently called to be 'redi
 
 
 
-## General data querying and filtering routes:
+## Routes:
 
-### 
+### General data querying/filtering routes:
+
+#### Querying the data:
 - `curl localhost:5000/`: Outputs "Hello, world!"
 - `curl localhost:5000/data`: Outputs currently loaded data in database (initially, this should be empty "[]")
 - `curl -X GET localhost:5000/data`: Same as the previous route.
 - `curl -X POST localhost:5000/data`: Posts dataset to redis database
 - `curl -X DELETE localhost:5000/data`: Deletes all data in database
 
-### Route: `curl localhost:5000/all_values_for/<param>`
+#### Route: `curl localhost:5000/all_values_for/<param>`
 Description: See all the available values of the any parameter in the data.
 Notes:
 - Works best on categorical variables
