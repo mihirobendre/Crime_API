@@ -4,3 +4,4 @@ requests
 hotqueue==0.2.8
 pytest
 matplotlib
+pandas
