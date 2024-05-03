@@ -1,6 +1,17 @@
 import pytest
 import json
-from jobs import *
+import redis
+from jobs import (
+    _generate_jid,
+    _instantiate_job,
+    _save_job,
+    _queue_job,
+    add_job,
+    get_job_by_id,
+    update_job_status,
+    return_all_jobids
+)
+
 _redis_ip = 'redis-db'
 _redis_port = '6379'
 # Fixture to set up Redis connection for testing
@@ -74,3 +85,4 @@ def test_return_all_jobids(redis_connection):
     all_job_ids = json.loads(return_all_jobids())
     assert jid1 in all_job_ids
     assert jid2 in all_job_ids
+
