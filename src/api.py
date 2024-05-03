@@ -136,10 +136,15 @@ def org_by(param, order):
     Parameters: param, order. 
         param: the parameter which we're ordering the dataset by (for this function, this is a quantitative parameter)
         order: this is either 'ascend' or 'descend'
+        limit: (Optional) Specifies the maximum number of items to return (default is None, which means no limit).
+        offset: (Optional) Specifies the number of items to skip before starting to return items (default is 0).
 
     Result: a json object containing the ordered 'data' along with a 'message' w/ information on how many of the datapoints contained <param>, the starting and ending values of the ordered dataset.
 
     """
+    
+    limit = request.args.get('limit', None, type=int)
+    offset = request.args.get('offset', 0, type=int)
     
     try:
         if order not in ["ascend", "descend"]:
@@ -157,7 +162,8 @@ def org_by(param, order):
     message = None
     data = response.json()
     list_of_dates = []
-    
+    starting_date = None
+    ending_date = None
     
     # populating list_of_dates
     for item in data:
@@ -180,10 +186,28 @@ def org_by(param, order):
                     new_list.append(item)
                     break
     
-    # formulating message, and associated params
-    starting_date = str(sorted_list[0])
-    ending_date = str(sorted_list[-1])
+    # sorting list of data with limit and offset parameters in place
+    new_list = []
+    if limit is not None:
+        for date in sorted_list[offset:offset+limit]:
+            for item in data:
+                if param in list(item.keys()):
+                    if item[str(param)] == str(date):
+                        new_list.append(item)
+                        starting_date = str(sorted_list[offset])
+                        ending_date = str(sorted_list[offset+limit])
+                        break
+    else:
+        for date in sorted_list:
+            for item in data:
+                if param in list(item.keys()):
+                    if item[str(param)] == str(date):
+                        new_list.append(item)
+                        starting_date = str(sorted_list[0])
+                        ending_date = str(sorted_list[-1])
+                        break
 
+    # formulating message, and associated params
     if num_instances == 0:
         message = f"The field {param} isn't present in the data"
     elif num_instances == len(data):
@@ -198,29 +222,6 @@ def org_by(param, order):
     return {'data': new_list,
             'message': message}
 
-'''
-@app.route('/data/crime_type/<crime_type>', methods=['GET'])
-def crime_info_by_type(crime_type: str) -> str:
-    """
-    Endpoint to retrieve information about specific crime based on type.
-
-    Returns:
-        str: JSON formatted list of crime IDs.
-    """
-    # Get data from web
-    response = requests.get(url)
-    list_of_crimes = []
-    if response.status_code == 200:
-        # Parse the JSON response
-        data = response.json()
-        for item in data:
-            if item["crime_type"] == crime_type:
-                list_of_crimes.append(item)
-        return json.dumps(list_of_crimes)
-    else:
-        print("Failed to fetch data:", response.status_code)
-        return None
-'''
 
 @app.route('/jobs', methods = ['GET','POST'])
 def jobs_general():
@@ -239,6 +240,7 @@ def jobs_general():
     elif request.method == 'GET':
         ret_string = return_all_jobids() + '\n'
         return ret_string
+    
 
 @app.route('/jobs/<jobid>', methods = ['GET'])
 def get_job(jobid):

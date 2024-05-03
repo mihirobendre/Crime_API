@@ -26,6 +26,10 @@ The dataset contains records of incidents responded to by the Austin Police Depa
 
 Note: the environment variable in the Dockerfile is currently called to be 'redis-db' but it's modifiable. Therefore, it can be changed as long as it's changed in the Dockerfile and docker-compose.yml.
 
+## Instructions to run pytest
+
+
+
 ## Example Gene-API query commands and expected outputs in code blocks:
 
 - `curl localhost:5000/`: Outputs "Hello, world!"
@@ -85,5 +89,3 @@ Before getting started, please ensure that you have the following installed on y
 - Docker: Install Docker according to your operating system. You can find instructions on the [official Docker website](https://docs.docker.com/get-docker/).
 - Redis: enter the following in your CLI: `pip install redis`
 - Flask: enter the following in your CLI: `pip install flask`
-
-
