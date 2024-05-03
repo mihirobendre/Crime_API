@@ -77,10 +77,12 @@ def all_values_for(param):
     dict_of_values = {}
     num_instances = 0
     message = None
+    data = []
     for item in rd.keys():
-        data = json.loads(rd.get(item))
-        for item in data:
-            if param in item.keys():
+        data.append(json.loads(rd.get(item)))
+
+    for item in data:
+       if param in list(item.keys()):
                 num_instances +=1
                 value = item[param]
                 if isinstance(value, str) and not isinstance(value, dict):
@@ -109,13 +111,18 @@ def all_data_for(param, value):
     list_of_data = []
     num_instances = 0
     message = None
+    data = []
+    
     for item in rd.keys():
-        data = json.loads(rd.get(item))
-        for item in data:
-            if param in item.keys():
-                if item[param] == value:
-                    num_instances += 1
-                    list_of_data.append(item)
+        data.append(json.loads(rd.get(item)))
+
+    for item in data:
+        if param in item.keys():
+            if item[param] == value:
+                num_instances += 1
+                list_of_data.append(item)
+    
+    # Message formulation
     if num_instances == 0:
         message = "This field isn't present in the data"
     elif num_instances == len(data):
@@ -123,7 +130,7 @@ def all_data_for(param, value):
     elif num_instances <= len(data):
         num_instances = str(num_instances)
         total_instances = str(len(data))
-        message = f"Out of a total of {total_instances} datapoints, {num_instances} contained the {param} field"
+        message = f"Out of a total of {total_instances} datapoints, {num_instances} contained the {value} value of the {param} field"
     
     if limit is not None:
         list_of_data = list_of_data[offset:offset+limit]
@@ -165,8 +172,12 @@ def org_by(param, order):
     my_list_of_data = []
     num_instances = 0
     message = None
+
+    data = []
     for item in rd.keys():
-        data = json.loads(rd.get(item))
+        data.append(json.loads(rd.get(item)))
+
+
     list_of_dates = []
     starting_date = None
     ending_date = None

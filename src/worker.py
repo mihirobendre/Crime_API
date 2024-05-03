@@ -37,7 +37,7 @@ def all_values_for(param, data):
     num_instances = 0
     for item in data:
         if param in item.keys():
-            num_instances += 1    
+            num_instances += 1
             value = item[param]
             if isinstance(value, str) and not isinstance(value, dict):
                 if value not in dict_of_values:
@@ -71,23 +71,24 @@ def hist_plotter(param):
     # Extracting keys (variables) and values (occurrences) from the dictionary
     variables = list(top_5_dict.keys())
     occurrences = list(top_5_dict.values())
+    
+    plt.clf()
 
     # Plotting the histogram
     plt.bar(variables, occurrences, color='skyblue', edgecolor='black')
-
+    
     # Adding labels and title
     plt.xlabel(f"Top 5 values for {param}")
     plt.ylabel('Occurrences')
     plt.title(f"Histogram for {param}")
-
+    
     # Rotating x-axis labels for better readability (optional)
     plt.xticks(rotation=45)
     plt.xticks(fontsize=8)
-
+    plt.tight_layout()
+    
     # Save the plot
     plt.savefig('/output_image.png')
-
-
 
 @q.worker
 def worker(jobid):
@@ -101,11 +102,13 @@ def worker(jobid):
     job_type = job_data.get('job_type')
     
     if job_type == "histogram":
+        
         try:
             param = job_data.get('params')['param']
         except NameError:
             logging.error("Parameter not found in job_data")
-        param = "crime_type"
+        
+        #param = "crime_type"
         hist_plotter(param)
     
     with open('/output_image.png', 'rb') as f:
