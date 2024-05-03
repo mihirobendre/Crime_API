@@ -1,85 +1,62 @@
 import pytest
-import os
-from api import app, hello_world, handle_data, crime_info_by_type, crime_info_by_id, all_crime_ids, all_crime_types,jobs_general, get_job, calculate_result 
-import requests
-import json
+from api import app
 
-def is_json_string(s):
-    try:
-        json.loads(s)
-        return True
-    except json.JSONDecodeError:
-        return False
+@pytest.fixture
+def client():
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
-def test_hello_world():
-    response = requests.get('http://localhost:5000/')
-    assert response.status_code == 200
-    assert response.content.decode('utf-8') == 'Hello, world!\n'
+def test_hello_world(client):
+    response = client.get('/')
+    assert response.data == b'Hello, world!\n'
 
+def test_handle_data_post(client, mocker):
+    mocker.patch('api.requests.get')
+    response_mock = mocker.MagicMock()
+    response_mock.status_code = 200
+    response_mock.json.return_value = [{'key': 'value'}]
+    api.requests.get.return_value = response_mock
 
-def test_handle_data_delete():
-    response = requests.delete('http://localhost:5000/data')
-    assert response.status_code == 200
-    assert response.content.decode('utf-8') == 'Data deleted\n'
+    response = client.post('/data')
+    assert response.data == b'Data loaded\n'
 
-def test_handle_data_post():
-
-    # Send a POST request to the '/data' endpoint
-    response = requests.post('http://localhost:5000/data')
-    
-    # Check if the response status code is 200 (OK)
+def test_handle_data_get(client):
+    response = client.get('/data')
     assert response.status_code == 200
 
-    # Check if the response content matches the expected message
-    assert response.content.decode('utf-8') == 'Data loaded\n'
+def test_handle_data_delete(client):
+    response = client.delete('/data')
+    assert response.data == b'Data deleted\n'
 
-
-def test_handle_data_get():
-    response = requests.get('http://localhost:5000/data')
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
-    assert all(isinstance(item, dict) for item in response.json())
-
-def test_crime_info_by_id():
-    response = requests.get('http://localhost:5000/data/incident_report_number/123')
-    assert response.status_code == 500
-
-def test_all_crime_ids():
-    response = requests.get('http://localhost:5000/data/incident_report_numbers')
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
-
-def test_all_crime_types():
-    response = requests.get('http://localhost:5000/data/crime_types')
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
-
-def test_crime_info_by_type():
-    response = requests.get('http://localhost:5000/data/crime_type/THEFT')
-    assert response.status_code == 200
-    assert all(isinstance(item, dict) for item in response.json())
-
-def test_jobs_get():
-    response = requests.get('http://localhost:5000/jobs')
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
-
-def test_jobs_post():
-    # Define the payload data
-    data = '{"crime_type":"THEFT"}'
-    # Define the headers
-    headers = {'Content-Type': 'application/json'}
-    # Make the POST request using requests.post
-    response = requests.post('http://localhost:5000/jobs', data=data, headers=headers)
+def test_all_values_for(client):
+    response = client.get('/all_values_for/key')
     assert response.status_code == 200
 
-def test_job_specific():
-    job_id = "9033e47b-aa35-4038-ba6c-0587ba86842c"
-    response = requests.get(f'http://localhost:5000/jobs/{job_id}')
+def test_all_data_for(client):
+    response = client.get('/all_data_for/key/value')
     assert response.status_code == 200
 
-def test_result():
-    job_id = "9033e47b-aa35-4038-ba6c-0587ba86842c"
-    response = requests.get(f'http://localhost:5000/results/{job_id}')
+def test_org_by(client):
+    response = client.get('/order/ascend/key')
     assert response.status_code == 200
 
+def test_jobs_general_post(client):
+    response = client.post('/jobs', json={'job_type': 'type', 'params': 'params'})
+    assert response.status_code == 200
+
+def test_jobs_general_get(client):
+    response = client.get('/jobs')
+    assert response.status_code == 200
+
+def test_get_job(client):
+    response = client.get('/jobs/jobid')
+    assert response.status_code == 200
+
+def test_calculate_result(client):
+    response = client.get('/results/jobid')
+    assert response.status_code == 200
+
+def test_download(client):
+    response = client.get('/download/jobid')
+    assert response.status_code == 200
