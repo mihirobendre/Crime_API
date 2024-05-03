@@ -30,49 +30,65 @@ Note: the environment variable in the Dockerfile is currently called to be 'redi
 
 
 
-## Routes:
+## Crime API endpoints:
 
-### General data querying/filtering routes:
+#### Route:`curl localhost:5000/`
+Description: Test-route for testing whether the app is running on the port.
+Output: "Hello, world!"
 
-#### Querying the data:
-- `curl localhost:5000/`: Outputs "Hello, world!"
+### Data querying/filtering routes:
+
+#### Route: `curl localhost:5000/data`
+Description: General CRUD operation route for getting, posting and deleting the data
+Notes:
+- Works best on categorical variables
+- Message with extra info included
+Use-cases:
 - `curl localhost:5000/data`: Outputs currently loaded data in database (initially, this should be empty "[]")
 - `curl -X GET localhost:5000/data`: Same as the previous route.
 - `curl -X POST localhost:5000/data`: Posts dataset to redis database
 - `curl -X DELETE localhost:5000/data`: Deletes all data in database
 
 #### Route: `curl localhost:5000/all_values_for/<param>`
-Description: See all the available values of the any parameter in the data.
+Description: See all the available values of any parameter in the data.
 Notes:
 - Works best on categorical variables
+- Outputs the all possible values, as well as number of times it's found in data
 - Message with extra info included
 Examples:
+- `curl localhost:5000/all_values_for/crime_type`
+Outputs: 
 
-
-
-
-See all data where a given parameter is at a specific value <value> 
-- curl "localhost:5000/all_data_for/<param>/<value>?limit=10&offset=10"
-
+#### Route: curl "localhost:5000/all_data_for/<param>/<value>?limit=int&offset=int"
+Description: See all data where a given parameter is at a specific value <value>
+Notes:
+- Works well on quantitative or categorical/qualitative parameters
+- Limit and offset capabilities included (default to limit=None and offset=0, if not provided)
+- Data is not organized
+- Message with extra info included
 Examples:
 - curl "localhost:5000/all_data_for/crime_type/THEFT?limit=10&offset=10"
 - curl "localhost:5000/all_data_for/crime_type/PROTECTIVE%20ORDER?limit=10&offset=10"
+Outputs:
+
+#### Route: curl "localhost:5000/order/<order>/<param>?limit=int&offset=int"
+Description: Organize parameter <param> in <order> 'ascend' or 'descend'
+Notes:
+- Works well on quantitative parameters, but was originally designed for date/time parameters
+- Limit and offset capabilities included (default to limit=None and offset=0, if not provided)
+- Data is organized, in either ascending or descending order, specified by 'ascend' or 'descend' values of <order>.
+- Message with extra info included
+Examples:
+- curl "localhost:5000/order/<order>/occ_datelimit=10&offset=10"
+- curl "localhost:5000/all_data_for/crime_type/PROTECTIVE%20ORDER?limit=10&offset=10"
+Outputs:
 
 
 
-Filter the data to view all data where a certain category meets given value (need to generalize in next iteration)
-- `curl localhost:5000/data/incident_report_number/<ir_num>`: Returns all data where the incident_report_number equals value <ir_num>
-  - e.x. `curl localhost:5000/crimes/20212171325` returns: `{"incident_report_number": "20212171325", "crime_type": "THEFT", "ucr_code": "600", "family_violence": "N", "occ_date_time": "2021-06-07T10:24:00.000", "occ_date": "2021-06-07T00:00:00.000", "occ_time": "1024", "rep_date_time": "2021-06-07T10:24:00.000", "rep_date": "2021-06-07T00:00:00.000", "rep_time": "1024", "location_type": "RESIDENCE / HOME", "address": "500 BLOCK NATALI ST", "zip_code": "78748", "council_district": "2", "sector": "FR", "district": "3", "pra": "537", "census_tract": "24.37", "clearance_status": "N", "clearance_date": "2021-09-06T00:00:00.000", "ucr_category": "23H", "category_description": "Theft", "x_coordinate": "0", "y_coordinate": "0"}`
+### Jobs routes
 
-- `curl localhost:5000/data/crime_type/<crime_type>`: Returns all data where the crime_type equals value <crime_type>
-  - e.x. `curl localhost:5000/data/crime_type/PROTECTIVE%20ORDER` returns:
-  - [{"incident_report_number": "20135057728", "crime_type": "PROTECTIVE ORDER", "ucr_code": "3829", "family_violence": "N", "occ_date_time": "2013-12-17T09:26:00.000", "occ_date": "2013-12-17T00:00:00.000", "occ_time": "926", "rep_date_time": "2013-12-17T09:26:00.000", "rep_date": "2013-12-17T00:00:00.000", "rep_time": "926", "location_type": "RESIDENCE / HOME", "address": "UNKNOWN", "sector": "AD", "district": "4", "clearance_status": "N", "clearance_date": "2013-12-17T00:00:00.000"}, ... , {"incident_report_number": "20145027129", "crime_type": "PROTECTIVE ORDER", "ucr_code": "3829", "family_violence": "N", "occ_date_time": "2014-06-18T16:09:00.000", "occ_date": "2014-06-18T00:00:00.000", "occ_time": "1609", "rep_date_time": "2014-06-18T16:09:00.000", "rep_date": "2014-06-18T00:00:00.000", "rep_time": "1609", "location_type": "RESIDENCE / HOME", "address": "UNKNOWN", "sector": "ED", "district": "2", "clearance_status": "N", "clearance_date": "2014-06-18T00:00:00.000"}]
- 
-
-## Instructions and Examples for Jobs-API (query commands w/ expected outputs):
-
-First, use this POST method to add a new job to the queue, which also shows the job's current status and values. The program is currently only capable of handling the "crime_type" (required) parameter, which must be one of the crime-types in the dataset:
-- `curl localhost:5000/jobs -X POST -d '{"crime_type":"THEFT"}' -H "Content-Type: application/json"`
+First, use this POST method to add a new job to the queue, which also shows the job's current status and values:
+- `curl localhost:5000/jobs -X POST -d '{"job_type":"histogram", "params": {"param": "crime_type"}}' -H "Content-Type: application/json"`
 - Example output: `{
   "crime_type": "THEFT",
   "id": "0db41abb-73c7-4e2d-beee-591f8594add3",
@@ -95,6 +111,10 @@ You can also use this GET method to show all the running jobs ids:
 Finally, once the results have been loaded, you can use this GET method to load the result:
 - `curl localhost:5000/results/<jobid>`
 - Example output: `33` (meaning there were 33 instances in the data where crime_type equaled 'THEFT')
+
+
+
+
 
 ## Software Diagram:
 
