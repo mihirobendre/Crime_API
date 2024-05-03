@@ -103,6 +103,10 @@ def all_values_for(param):
 # for categorical parameter
 @app.route('/all_data_for/<param>/<value>', methods=['GET'])
 def all_data_for(param, value):
+    
+    limit = request.args.get('limit', None, type=int)
+    offset = request.args.get('offset', 0, type=int)
+
     response = requests.get(url)
     list_of_data = []
     num_instances = 0
@@ -122,6 +126,10 @@ def all_data_for(param, value):
         num_instances = str(num_instances)
         total_instances = str(len(data))
         message = f"Out of a total of {total_instances} datapoints, {num_instances} contained the {param} field"
+    
+    if limit is not None:
+        list_of_data = list_of_data[offset:offset+limit]
+
     return {"message": message,
             "all data": list_of_data}
 
@@ -154,7 +162,7 @@ def org_by(param, order):
     except ValueError as e:
         print(e)
     
-
+    
     # declaring variables
     response = requests.get(url)
     my_list_of_data = []
