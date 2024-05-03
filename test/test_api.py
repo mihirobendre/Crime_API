@@ -1,8 +1,10 @@
 import os
-import pytest
-import json
 import requests
+import pytest
 from api import app
+
+# Obtain the Flask application's IP address from environment variable
+_flask_ip = os.environ.get('FLASK_IP')
 
 # Fixture to initialize the Flask app for testing
 @pytest.fixture
@@ -16,7 +18,7 @@ def test_hello_world(client):
     assert response.status_code == 200
     assert response.data == b'Hello, world!\n'
 
-def test_handle_data(client):
+def test_data_endpoint(client):
     # Test POST request
     response_post = client.post('/data')
     assert response_post.status_code == 200
