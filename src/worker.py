@@ -145,6 +145,11 @@ def worker(jobid):
     
     elif job_type == "line":
         
+        try:
+            param = job_data.get('params')['param']
+        except NameError:
+            logging.error("Parameter not found in job_data")
+
         line_plotter()
 
     with open('/output_image.png', 'rb') as f:
