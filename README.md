@@ -32,11 +32,17 @@ Note: the environment variable in the Dockerfile is currently called to be 'redi
 
 ## Crime API endpoints:
 
+
+
 #### Route:`curl localhost:5000/`
 Description: Test-route for testing whether the app is running on the port.
 Output: "Hello, world!"
 
+
+
 ### Data querying/filtering routes:
+
+
 
 #### Route: `curl localhost:5000/data`
 Description: General CRUD operation route for getting, posting and deleting the data
@@ -49,6 +55,8 @@ Use-cases:
 - `curl -X POST localhost:5000/data`: Posts dataset to redis database
 - `curl -X DELETE localhost:5000/data`: Deletes all data in database
 
+
+
 #### Route: `curl localhost:5000/all_values_for/<param>`
 Description: See all the available values of any parameter in the data.
 Notes:
@@ -58,6 +66,8 @@ Notes:
 Examples:
 - `curl localhost:5000/all_values_for/crime_type`
 Outputs: 
+
+
 
 #### Route: curl "localhost:5000/all_data_for/<param>/<value>?limit=int&offset=int"
 Description: See all data where a given parameter is at a specific value <value>
@@ -70,6 +80,8 @@ Examples:
 - curl "localhost:5000/all_data_for/crime_type/THEFT?limit=10&offset=10"
 - curl "localhost:5000/all_data_for/crime_type/PROTECTIVE%20ORDER?limit=10&offset=10"
 Outputs:
+
+
 
 #### Route: curl "localhost:5000/order/<order>/<param>?limit=int&offset=int"
 Description: Organize parameter <param> in <order> 'ascend' or 'descend'
@@ -88,13 +100,16 @@ Outputs:
 ### Jobs routes
 
 First, use this POST method to add a new job to the queue, which also shows the job's current status and values:
-- `curl localhost:5000/jobs -X POST -d '{"job_type":"histogram", "params": {"param": "crime_type"}}' -H "Content-Type: application/json"`
-- Example output: `{
-  "crime_type": "THEFT",
-  "id": "0db41abb-73c7-4e2d-beee-591f8594add3",
-  "status": "submitted"
-}`
 
+#### Histogram job:
+
+- `curl localhost:5000/jobs -X POST -d '{"job_type":"histogram", "params": {"param": "crime_type"}}' -H "Content-Type: application/json"`
+- Example output: ``
+
+#### Mapping job:
+
+
+#### Get a job's info
 Now, use this GET method along with the specific <jobid> you just received (replace <jobid> with the "id" you received above):
 - `curl localhost:5000/jobs/<jobid>`
 - Example Output: `{
