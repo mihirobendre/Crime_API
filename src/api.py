@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import redis
 import json
 from typing import Union, List, Dict
@@ -235,15 +235,12 @@ def org_by(param, order):
 def jobs_general():
     if request.method == 'POST':
         data = request.get_json()
-        crime_type = None
-        # add more parameters here        
         try:
-            crime_type = data['crime_type']
-            # add more parameters here
-        except KeyError:
-            return "The data doesn't contain the parameter(s) you requested'\n"
-        
-        job_dict = add_job(crime_type)
+            job_type = data['job_type']
+            params = data['params']
+        except ValueError:
+            return "Parameter not supported by jobs endpoint"
+        job_dict = add_job(job_type, params)
         return job_dict
     elif request.method == 'GET':
         ret_string = return_all_jobids() + '\n'
@@ -262,6 +259,19 @@ def calculate_result(jobid):
         return result
     except TypeError:
         return "Cannot find key in results database"
+
+@app.route('/download/<jobid>', methods=['GET'])
+def download(jobid):
+    path = f'/{jobid}.png'
+    with open(path, 'wb') as f:
+        f.write(res.hget(jobid, 'image'))   # 'results' is a client to the results db
+    return send_file(path, mimetype='image/png', as_attachment=True)
+
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 5000, debug = True)
