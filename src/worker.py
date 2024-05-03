@@ -9,6 +9,8 @@ from flask import Flask, request, jsonify
 from jobs import return_all_jobids, get_job_by_id, update_job_status, q, rd, jdb
 import time
 import matplotlib.pyplot as plt
+import pandas as pd
+
 
 # Read the value of the LOG_LEVEL environment variable
 log_level = os.getenv("LOG_LEVEL", "INFO")
@@ -57,14 +59,16 @@ def top_5_values(data_dict):
     
     # Creating a new dictionary with the top 5 items
     top_5_dict = dict(top_5)
-    
+
     return top_5_dict
 
 def hist_plotter(param):
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        dict_of_values = all_values_for(param, data)
+    
+    data = []
+    for item in rd.keys():
+        data.append(json.loads(rd.get(item)))
+
+    dict_of_values = all_values_for(param, data)
     
     top_5_dict = top_5_values(dict_of_values)
     
@@ -73,7 +77,7 @@ def hist_plotter(param):
     occurrences = list(top_5_dict.values())
     
     plt.clf()
-
+    
     # Plotting the histogram
     plt.bar(variables, occurrences, color='skyblue', edgecolor='black')
     
@@ -89,6 +93,34 @@ def hist_plotter(param):
     
     # Save the plot
     plt.savefig('/output_image.png')
+
+def line_plotter():
+    # Fetch data from the redis db
+    data = []
+    for item in rd.keys():
+        data.append(json.loads(rd.get(item)))
+    # Load data into a DataFrame
+    df = pd.DataFrame(data)
+    # Convert date columns to datetime objects
+    df['occ_date'] = pd.to_datetime(df['occ_date'])
+    # Extract year from occ_date
+    df['year'] = df['occ_date'].dt.year
+    # Count occurrences of each crime type per year
+    crime_counts = df.groupby(['year', 'crime_type']).size().unstack(fill_value=0)
+    # Get top 5 crime types by total occurrences
+    top_crime_types = crime_counts.sum().nlargest(5).index
+    # Plot line graph for top 5 crime types
+    plt.figure(figsize=(10, 6))
+    for crime_type in top_crime_types:
+        plt.plot(crime_counts.index, crime_counts[crime_type], label=crime_type)
+    plt.title('Number of Crimes for Top 5 Crime Types Over the Years')
+    plt.xlabel('Year')
+    plt.ylabel('Number of Crimes')
+    plt.legend()
+    plt.grid(True)
+    plt.xticks(crime_counts.index, rotation=45)
+    plt.tight_layout()
+    plt.show()
 
 @q.worker
 def worker(jobid):
@@ -111,11 +143,15 @@ def worker(jobid):
         #param = "crime_type"
         hist_plotter(param)
     
+    elif job_type == "line":
+        
+        line_plotter()
+
     with open('/output_image.png', 'rb') as f:
         img = f.read()
     res.hset(jobid, 'image', img)
     update_job_status(jobid, 'completed')
-
+    
     '''
     sample_plot()
     with open('/output_image.png', 'rb') as f:
@@ -123,7 +159,7 @@ def worker(jobid):
     res.hset(jobid, 'image', img)
     update_job_status(jobid, 'completed')
     '''
-
+    
 worker()
 
 
