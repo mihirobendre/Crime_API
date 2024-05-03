@@ -1,7 +1,8 @@
 import pytest
 import json
 from jobs import *
-
+_redis_ip = 'redis-db'
+_redis_port = '6379'
 # Fixture to set up Redis connection for testing
 @pytest.fixture(scope='module')
 def redis_connection():

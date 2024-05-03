@@ -1,13 +1,10 @@
-import pytest
-from api import app
 import os
-from api import app, hello_world, handle_data, crime_info_by_type, crime_info_by_id, all_crime_ids, all_crime_types,jobs_general, get_job, calculate_result 
-import requests
+import pytest
 import json
+import requests
+from api import app
 
-_redis_ip = 'redis-db'
-_redis_port = '6379'
-
+# Fixture to initialize the Flask app for testing
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
@@ -16,54 +13,87 @@ def client():
 
 def test_hello_world(client):
     response = client.get('/')
+    assert response.status_code == 200
     assert response.data == b'Hello, world!\n'
 
-def test_handle_data_post(client, mocker):
-    mocker.patch('api.requests.get')
-    response_mock = mocker.MagicMock()
-    response_mock.status_code = 200
-    response_mock.json.return_value = [{'key': 'value'}]
-    api.requests.get.return_value = response_mock
+def test_handle_data(client):
+    # Test POST request
+    response_post = client.post('/data')
+    assert response_post.status_code == 200
 
-    response = client.post('/data')
-    assert response.data == b'Data loaded\n'
+    # Test GET request
+    response_get = client.get('/data')
+    assert response_get.status_code == 200
+    assert isinstance(response_get.json, list)
 
-def test_handle_data_get(client):
-    response = client.get('/data')
-    assert response.status_code == 200
-
-def test_handle_data_delete(client):
-    response = client.delete('/data')
-    assert response.data == b'Data deleted\n'
+    # Test DELETE request
+    response_delete = client.delete('/data')
+    assert response_delete.status_code == 200
 
 def test_all_values_for(client):
-    response = client.get('/all_values_for/key')
+    response = client.get('/all_values_for/crime_type')
     assert response.status_code == 200
+    assert isinstance(response.json, dict)
+    assert 'message' in response.json
+    assert 'all values' in response.json
 
 def test_all_data_for(client):
-    response = client.get('/all_data_for/key/value')
+    response = client.get('/all_data_for/crime_type/THEFT')
     assert response.status_code == 200
+    assert isinstance(response.json, dict)
+    assert 'message' in response.json
+    assert 'all data' in response.json
 
-def test_org_by(client):
-    response = client.get('/order/ascend/key')
+def test_order(client):
+    response = client.get('/order/ascend/occ_date')
     assert response.status_code == 200
+    assert isinstance(response.json, dict)
+    assert 'data' in response.json
+    assert 'message' in response.json
 
-def test_jobs_general_post(client):
-    response = client.post('/jobs', json={'job_type': 'type', 'params': 'params'})
-    assert response.status_code == 200
+def test_jobs_general(client):
+    # Test POST request
+    data = {'job_type': 'histogram', 'params': {'param': 'crime_type'}}
+    response_post = client.post('/jobs', json=data)
+    assert response_post.status_code == 200
+    assert isinstance(response_post.json, dict)
+    assert 'job_id' in response_post.json
 
-def test_jobs_general_get(client):
-    response = client.get('/jobs')
-    assert response.status_code == 200
+    # Test GET request
+    response_get = client.get('/jobs')
+    assert response_get.status_code == 200
+    assert isinstance(response_get.json, list)
 
 def test_get_job(client):
-    response = client.get('/jobs/jobid')
+    # Get job id from previous test
+    response_get_jobs = client.get('/jobs')
+    assert response_get_jobs.status_code == 200
+    assert isinstance(response_get_jobs.json, list)
+    job_id = response_get_jobs.json[0]['job_id']
+
+    response = client.get(f'/jobs/{job_id}')
     assert response.status_code == 200
+    assert isinstance(response.json, dict)
+    assert 'job_id' in response.json
 
 def test_calculate_result(client):
-    response = client.get('/results/jobid')
+    # Get job id from previous test
+    response_get_jobs = client.get('/jobs')
+    assert response_get_jobs.status_code == 200
+    assert isinstance(response_get_jobs.json, list)
+    job_id = response_get_jobs.json[0]['job_id']
+
+    response = client.get(f'/results/{job_id}')
     assert response.status_code == 200
 
 def test_download(client):
-    response = client.get('/download/jobid')
+    # Get job id from previous test
+    response_get_jobs = client.get('/jobs')
+    assert response_get_jobs.status_code == 200
+    assert isinstance(response_get_jobs.json, list)
+    job_id = response_get_jobs.json[0]['job_id']
+
+    response = client.get(f'/download/{job_id}')
     assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'image/png'
+
