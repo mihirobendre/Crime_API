@@ -77,8 +77,8 @@ def all_values_for(param):
     dict_of_values = {}
     num_instances = 0
     message = None
-    if response.status_code == 200:
-        data = response.json()
+    for item in rd.keys():
+        data = json.loads(rd.get(item))
         for item in data:
             if param in item.keys():
                 num_instances +=1
@@ -106,13 +106,11 @@ def all_data_for(param, value):
     
     limit = request.args.get('limit', None, type=int)
     offset = request.args.get('offset', 0, type=int)
-
-    response = requests.get(url)
     list_of_data = []
     num_instances = 0
     message = None
-    if response.status_code == 200:
-        data = response.json()
+    for item in rd.keys():
+        data = json.loads(rd.get(item))
         for item in data:
             if param in item.keys():
                 if item[param] == value:
@@ -164,11 +162,11 @@ def org_by(param, order):
     
     
     # declaring variables
-    response = requests.get(url)
     my_list_of_data = []
     num_instances = 0
     message = None
-    data = response.json()
+    for item in rd.keys():
+        data = json.loads(rd.get(item))
     list_of_dates = []
     starting_date = None
     ending_date = None
