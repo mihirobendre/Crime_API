@@ -120,7 +120,7 @@ def line_plotter():
     plt.grid(True)
     plt.xticks(crime_counts.index, rotation=45)
     plt.tight_layout()
-    plt.show()
+    plt.savefig('/output_image.png')
 
 @q.worker
 def worker(jobid):
@@ -144,12 +144,6 @@ def worker(jobid):
         hist_plotter(param)
     
     elif job_type == "line":
-        
-        try:
-            param = job_data.get('params')['param']
-        except NameError:
-            logging.error("Parameter not found in job_data")
-
         line_plotter()
 
     with open('/output_image.png', 'rb') as f:

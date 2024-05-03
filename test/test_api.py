@@ -1,5 +1,12 @@
 import pytest
 from api import app
+import os
+from api import app, hello_world, handle_data, crime_info_by_type, crime_info_by_id, all_crime_ids, all_crime_types,jobs_general, get_job, calculate_result 
+import requests
+import json
+
+_redis_ip = 'redis-db'
+_redis_port = '6379'
 
 @pytest.fixture
 def client():

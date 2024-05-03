@@ -275,11 +275,9 @@ def download(jobid):
     with open(path, 'wb') as f:
         f.write(res.hget(jobid, 'image'))   # 'results' is a client to the results db
     return send_file(path, mimetype='image/png', as_attachment=True)
-'''
-@app.route('/graph/<graph_type>/<param>', methods = ['GET'])
-def create_graph(graph_type, param):
-    if graph_type == "histogram":
-'''     
+
+
+
 
 
 
