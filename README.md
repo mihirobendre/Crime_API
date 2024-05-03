@@ -30,19 +30,33 @@ Note: the environment variable in the Dockerfile is currently called to be 'redi
 
 
 
-## Example Gene-API query commands and expected outputs in code blocks:
+## General data querying and filtering routes:
 
+### 
 - `curl localhost:5000/`: Outputs "Hello, world!"
 - `curl localhost:5000/data`: Outputs currently loaded data in database (initially, this should be empty "[]")
 - `curl -X GET localhost:5000/data`: Same as the previous route.
 - `curl -X POST localhost:5000/data`: Posts dataset to redis database
 - `curl -X DELETE localhost:5000/data`: Deletes all data in database
 
-Data querying routes:
+### Route: `curl localhost:5000/all_values_for/<param>`
+Description: See all the available values of the any parameter in the data.
+Notes:
+- Works best on categorical variables
+- Message with extra info included
+Examples:
 
-See all the available values of the following categories in the dataset (will be generalizing this functionality in next iteration)
-- `curl localhost:5000/data/incident_report_numbers`
-- `curl localhost:5000/data/crime_types`
+
+
+
+See all data where a given parameter is at a specific value <value> 
+- curl "localhost:5000/all_data_for/<param>/<value>?limit=10&offset=10"
+
+Examples:
+- curl "localhost:5000/all_data_for/crime_type/THEFT?limit=10&offset=10"
+- curl "localhost:5000/all_data_for/crime_type/PROTECTIVE%20ORDER?limit=10&offset=10"
+
+
 
 Filter the data to view all data where a certain category meets given value (need to generalize in next iteration)
 - `curl localhost:5000/data/incident_report_number/<ir_num>`: Returns all data where the incident_report_number equals value <ir_num>
