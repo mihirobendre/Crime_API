@@ -16,11 +16,10 @@ logging.basicConfig(level=log_level)
 
 app = Flask(__name__)
 
-#_redis_ip = os.environ.get('REDIS_IP')
-_redis_ip = 'redis-db'
+REDIS_IP = os.environ.get('REDIS_IP')
 
-rd = redis.Redis(host=_redis_ip, port=6379, db=0)
-res = redis.Redis(host=_redis_ip, port = 6379, db = 3)
+rd = redis.Redis(host=REDIS_IP, port=6379, db=0)
+res = redis.Redis(host=REDIS_IP, port = 6379, db = 3)
 
 url = "https://data.austintexas.gov/resource/fdj4-gpfu.json"
 
