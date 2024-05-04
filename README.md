@@ -28,17 +28,17 @@ Note: the environment variable in the Dockerfile is currently called to be 'redi
 
 ## Instructions to run pytest
 
-
+To run pytest, run the following commands:
+Build app: `docker-compose up --build -d`
+Find network: `docker network ls`
+Find docker image: `docker images`
+Run pytests: `docker run --rm --network <network name> <image>:<tag> pytest`, replacing `<network name>`, `<image>`, and `<tag>` with respective values.
 
 ## Crime API endpoints:
-
-
 
 #### Route:`curl localhost:5000/`
 Description: Test-route for testing whether the app is running on the port.
 Output: "Hello, world!"
-
-
 
 ### Data querying/filtering routes:
 
@@ -89,17 +89,17 @@ Examples:
 ### Jobs routes
 First, use this POST method to add a new job to the queue, which also shows the job's current status and values:
 
-#### Histogram job:
+#### Histogram job
 - Description: Creates a histogram of top 5 occuring values of the parameter <param>. 
 - Notes: dynamic - works for all variables, works best on categorical variables
 - Example: `curl localhost:5000/jobs -X POST -d '{"job_type":"histogram", "params": {"param": "crime_type"}}' -H "Content-Type: application/json"`
 
-#### Time-series job:
+#### Time-series job
 - Description: Creates a time-series line plot of how the variable "crime-type" varies over time
 - Notes: static - works only on one variable: crime-type.
 - Example: `curl localhost:5000/jobs -X POST -d '{"job_type":"line", "params": {"param": "n/a"}}' -H "Content-Type: application/json"`
 
-#### Get a job's info
+#### Retreive job info
 Now, use this GET method along with the specific <jobid> you just received (replace <jobid> with the "id" you received above):
 - `curl localhost:5000/jobs/<jobid>`
 
@@ -108,7 +108,7 @@ You can also use this GET method to show all the running jobs ids:
 - Example output: 
 `["6543cfad-94fb-42d0-be89-80e6e836ac1d", "592e39bd-81cf-4f94-9152-700d004fa263", "33c8d95a-fe64-4b0f-b9fe-5ba6df76abc1", "cd4f7a7d-16a9-4dec-89cb-fb21595f4da7", "de9d5aae-762a-4884-80cc-0ffa44af7837", "a6c4ecf3-845d-4bde-a67b-fc51a6f654a0", "38766745-9f55-409c-9ff3-f27585c594da", "78eb42d0-7b7b-44d5-ae51-7d4caa9e7c68", "654edc7d-ea4a-4904-b313-14fa1bb3f9cd", "1e78cdd8-757c-4b19-be19-1e2bc1433a52", "7a6b1bcd-8819-4edb-b2e3-77d099d3402c", "a68ec66f-9d7b-4dfa-aa7b-bf66bd891d03", "99994d99-dc8c-4b37-b6ce-4e9d86f6b5d4", "77b820e3-205e-40a4-80ee-f724cb958a83", "33b55189-f622-4f93-8fd4-4b673d4657e1", "34b2bec1-449d-4571-9337-2b7fb72181ce"]`
 
-#### Results
+#### Download results
 Finally, once the results have been loaded, you can use this GET method to download the resulting image:
 - `curl localhost:5000/download/<jobid> --output output.png`
 
