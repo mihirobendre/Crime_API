@@ -14,9 +14,9 @@ logging.basicConfig(level=log_level)
 REDIS_IP = os.environ.get('REDIS_IP')
 _list_of_jobs = []
     
-rd = redis.Redis(host=_redis_ip, port=6379, db=0)
-q = HotQueue("queue", host=_redis_ip, port=6379, db=1)
-jdb = redis.Redis(host=_redis_ip, port=6379, db=2)
+rd = redis.Redis(host=REDIS_IP, port=6379, db=0)
+q = HotQueue("queue", host=REDIS_IP, port=6379, db=1)
+jdb = redis.Redis(host=REDIS_IP, port=6379, db=2)
 
 def _generate_jid():
     """
