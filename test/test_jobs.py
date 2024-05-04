@@ -1,8 +1,6 @@
 import pytest
 import json
 import redis
-
-'''
 from jobs import (
     _generate_jid,
     _instantiate_job,
@@ -98,4 +96,5 @@ def test_return_all_jobids(redis_connection):
     all_job_ids = json.loads(return_all_jobids())
     assert jid1 in all_job_ids
     assert jid2 in all_job_ids
-'''
+
+

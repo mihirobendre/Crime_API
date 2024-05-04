@@ -129,7 +129,6 @@ def worker(jobid):
         job_data = get_job_by_id(jobid)
     except ValueError:
         logging.error("This jobid is no longer in the queue")
-        print("This jobid isn't in queue!") 
     
     job_type = job_data.get('job_type')
     
@@ -139,8 +138,7 @@ def worker(jobid):
             param = job_data.get('params')['param']
         except NameError:
             logging.error("Parameter not found in job_data")
-        
-        #param = "crime_type"
+
         hist_plotter(param)
     
     elif job_type == "line":
@@ -150,15 +148,8 @@ def worker(jobid):
         img = f.read()
     res.hset(jobid, 'image', img)
     update_job_status(jobid, 'completed')
-    
-    '''
-    sample_plot()
-    with open('/output_image.png', 'rb') as f:
-        img = f.read()
-    res.hset(jobid, 'image', img)
-    update_job_status(jobid, 'completed')
-    '''
-    
+
+
 worker()
 
 
