@@ -42,8 +42,6 @@ Output: "Hello, world!"
 
 ### Data querying/filtering routes:
 
-
-
 #### Route: `curl localhost:5000/data`
 Description: General CRUD operation route for getting, posting and deleting the data
 Notes:
@@ -55,8 +53,6 @@ Use-cases:
 - `curl -X POST localhost:5000/data`: Posts dataset to redis database
 - `curl -X DELETE localhost:5000/data`: Deletes all data in database
 
-
-
 #### Route: `curl localhost:5000/all_values_for/<param>`
 Description: See all the available values of any parameter in the data.
 Notes:
@@ -65,8 +61,6 @@ Notes:
 - Message with extra info included
 Examples:
 - `curl localhost:5000/all_values_for/crime_type`
-Outputs: 
-
 
 
 #### Route: curl "localhost:5000/all_data_for/<param>/<value>?limit=int&offset=int"
@@ -77,10 +71,8 @@ Notes:
 - Data is not organized
 - Message with extra info included
 Examples:
-- curl "localhost:5000/all_data_for/crime_type/THEFT?limit=10&offset=10"
-- curl "localhost:5000/all_data_for/crime_type/PROTECTIVE%20ORDER?limit=10&offset=10"
-Outputs:
-
+- `curl "localhost:5000/all_data_for/crime_type/THEFT?limit=10&offset=10"`
+- `curl "localhost:5000/all_data_for/crime_type/PROTECTIVE%20ORDER?limit=10&offset=10"`
 
 
 #### Route: curl "localhost:5000/order/<order>/<param>?limit=int&offset=int"
@@ -93,46 +85,34 @@ Notes:
 Examples:
 - curl "localhost:5000/order/<order>/occ_datelimit=10&offset=10"
 - curl "localhost:5000/all_data_for/crime_type/PROTECTIVE%20ORDER?limit=10&offset=10"
-Outputs:
-
-
 
 ### Jobs routes
-
 First, use this POST method to add a new job to the queue, which also shows the job's current status and values:
 
 #### Histogram job:
+- Description: Creates a histogram of top 5 occuring values of the parameter <param>. 
+- Notes: dynamic - works for all variables, works best on categorical variables
+- Example: `curl localhost:5000/jobs -X POST -d '{"job_type":"histogram", "params": {"param": "crime_type"}}' -H "Content-Type: application/json"`
 
-- `curl localhost:5000/jobs -X POST -d '{"job_type":"histogram", "params": {"param": "crime_type"}}' -H "Content-Type: application/json"`
-- Example output: ``
-
-#### Mapping job:
-
+#### Time-series job:
+- Description: Creates a time-series line plot of how the variable "crime-type" varies over time
+- Notes: static - works only on one variable: crime-type.
+- Example: `curl localhost:5000/jobs -X POST -d '{"job_type":"line", "params": {"param": "n/a"}}' -H "Content-Type: application/json"`
 
 #### Get a job's info
 Now, use this GET method along with the specific <jobid> you just received (replace <jobid> with the "id" you received above):
 - `curl localhost:5000/jobs/<jobid>`
-- Example Output: `{
-  "crime_type": "THEFT",
-  "id": "0db41abb-73c7-4e2d-beee-591f8594add3",
-  "status": "in progress"
-}`
 
 You can also use this GET method to show all the running jobs ids:
 - `curl localhost:5000/jobs`
 - Example output: 
 `["6543cfad-94fb-42d0-be89-80e6e836ac1d", "592e39bd-81cf-4f94-9152-700d004fa263", "33c8d95a-fe64-4b0f-b9fe-5ba6df76abc1", "cd4f7a7d-16a9-4dec-89cb-fb21595f4da7", "de9d5aae-762a-4884-80cc-0ffa44af7837", "a6c4ecf3-845d-4bde-a67b-fc51a6f654a0", "38766745-9f55-409c-9ff3-f27585c594da", "78eb42d0-7b7b-44d5-ae51-7d4caa9e7c68", "654edc7d-ea4a-4904-b313-14fa1bb3f9cd", "1e78cdd8-757c-4b19-be19-1e2bc1433a52", "7a6b1bcd-8819-4edb-b2e3-77d099d3402c", "a68ec66f-9d7b-4dfa-aa7b-bf66bd891d03", "99994d99-dc8c-4b37-b6ce-4e9d86f6b5d4", "77b820e3-205e-40a4-80ee-f724cb958a83", "33b55189-f622-4f93-8fd4-4b673d4657e1", "34b2bec1-449d-4571-9337-2b7fb72181ce"]`
 
-Finally, once the results have been loaded, you can use this GET method to load the result:
-- `curl localhost:5000/results/<jobid>`
-- Example output: `33` (meaning there were 33 instances in the data where crime_type equaled 'THEFT')
-
-
-
-
+#### Results
+Finally, once the results have been loaded, you can use this GET method to download the resulting image:
+- `curl localhost:5000/download/<jobid> --output output.png`
 
 ## Software Diagram:
-
 ![SW diagram](homework08/sw_diagram.png)
 
 ## Prerequisites
