@@ -37,8 +37,10 @@ Run pytests: `docker run --rm --network <network name> <image>:<tag> pytest`, re
 ## Crime API endpoints:
 
 #### Route:`curl localhost:5000/`
-Description: Test-route for testing whether the app is running on the port.
-Output: "Hello, world!"
+Description: Test-route for testing whether the app is running on the port. Returns "Hello, world!"
+
+#### Route:`curl localhost:5000/help`
+Description: Provides a string of all endpoints and info.
 
 ### Data querying/filtering routes:
 
