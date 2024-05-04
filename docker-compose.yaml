@@ -18,7 +18,7 @@ services:
         command: ["python3", "api.py"]
         depends_on:
             - redis-db
-        image: mihirobendre/criminal_data_app:release
+        image: mihirobendre/criminal_data_app:test
         ports:
             - 5000:5000
         entrypoint: python3 api.py
@@ -32,7 +32,7 @@ services:
         command: ["python3", "worker.py"]
         depends_on:
             - redis-db
-        image: mihirobendre/jobs_worker:release
+        image: mihirobendre/jobs_worker:test
         entrypoint: python3 worker.py
         environment:
             - REDIS_IP=redis-db
