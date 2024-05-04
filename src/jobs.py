@@ -11,9 +11,7 @@ log_level = os.getenv("LOG_LEVEL", "INFO")
     
 logging.basicConfig(level=log_level)
     
-#_redis_ip = os.environ.get('REDIS_IP')
-_redis_ip = 'redis-db'
-_redis_port = '6379'
+REDIS_IP = os.environ.get('REDIS_IP')
 _list_of_jobs = []
     
 rd = redis.Redis(host=_redis_ip, port=6379, db=0)
