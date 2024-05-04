@@ -278,7 +278,7 @@ def download(jobid):
 
 @app.route('/help', methods=['GET'])
 def help_route():
-    return "{
+    ret_string = """{
     General routes:
         /data POST: Posts data to rd database
         /data GET: Gets data from rd database
@@ -298,7 +298,8 @@ def help_route():
         /jobs : Gets list of all jobids
         /jobs/<jobid> : Gets specific info for jobid
         /download/<jobid> : Downloads specific jobid's resulting image.
-    }"
+    }"""
+    return ret_string
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 5000, debug = True)
