@@ -24,5 +24,5 @@ spec:
             - name: http
               containerPort: 5000
           env:
-            - name: _redis_ip
+            - name: REDIS_IP
               value: "daku-redis-service"
