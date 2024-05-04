@@ -1,4 +1,3 @@
-'''
 import os
 import requests
 import pytest
@@ -112,4 +111,3 @@ def test_download(client):
     response = client.get(f'/download/{job_id}')
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'image/png'
-'''
