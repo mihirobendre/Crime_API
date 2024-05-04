@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+  labels:
+    app: flask-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+        - name: flask-app
+          imagePullPolicy: Always
+          image: mihirobendre/criminal_data_app:release
+          command: [python3, api.py]
+          ports:
+            - name: http
+              containerPort: 5000
+          env:
+            - name: _redis_ip
+              value: "daku-redis-service"
