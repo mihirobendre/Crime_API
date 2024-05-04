@@ -71,8 +71,16 @@ def handle_data() -> Union[str, List[Dict[str, str]]]:
 
 @app.route('/all_values_for/<param>', methods=['GET'])
 def all_values_for(param):
+    """
+    Endpoint to get all possible values for a specific parameter and their occurrences.
+
+    Args:
+        param (str): The parameter for which to retrieve values.
+
+    Returns:
+        Dict[str, Union[str, Dict[str, int]]]: A dictionary containing a message and a dictionary of values with their occurrences.
+    """
     response = requests.get(url)
-    
     dict_of_values = {}
     num_instances = 0
     message = None
@@ -104,7 +112,16 @@ def all_values_for(param):
 # for categorical parameter
 @app.route('/all_data_for/<param>/<value>', methods=['GET'])
 def all_data_for(param, value):
-    
+"""
+    Endpoint to retrieve all data where a specific parameter equals a certain value.
+
+    Args:
+        param (str): The parameter to filter.
+        value (str): The value to filter by.
+
+    Returns:
+        Dict[str, Union[str, List[Dict[str, str]]]]: A dictionary containing a message and the filtered data.
+"""    
     limit = request.args.get('limit', None, type=int)
     offset = request.args.get('offset', 0, type=int)
     list_of_data = []
@@ -241,6 +258,12 @@ def org_by(param, order):
 
 @app.route('/jobs', methods = ['GET','POST'])
 def jobs_general():
+    """
+    Endpoint to handle general job operations (POST for adding a job, GET for getting all job IDs).
+
+    Returns:
+        Union[str, Dict[str, str]]: Response message or dictionary containing job information.
+    """
     if request.method == 'POST':
         data = request.get_json()
         try:
@@ -257,10 +280,28 @@ def jobs_general():
 
 @app.route('/jobs/<jobid>', methods = ['GET'])
 def get_job(jobid):
+    """
+    Endpoint to get specific information for a job ID.
+
+    Args:
+        jobid (str): The ID of the job to retrieve information for.
+
+    Returns:
+        Union[str, Dict[str, str]]: Response message or dictionary containing job information.
+    """
     return get_job_by_id(jobid)
 
 @app.route('/results/<jobid>', methods = ['GET'])
 def calculate_result(jobid):
+    """
+    Endpoint to retrieve computed outcome for a job ID.
+
+    Args:
+        jobid (str): The ID of the job to retrieve results for.
+
+    Returns:
+        Union[str, bytes]: Result of the computation or an error message.
+    """
     # return computed outcome for that jobid
     try:
         result = res.get(jobid)
@@ -270,6 +311,15 @@ def calculate_result(jobid):
 
 @app.route('/download/<jobid>', methods=['GET'])
 def download(jobid):
+    """
+    Endpoint to download the resulting image for a job ID.
+
+    Args:
+        jobid (str): The ID of the job whose image to download.
+
+    Returns:
+        send_file: Response containing the image file.
+    """
     path = f'/{jobid}.png'
     with open(path, 'wb') as f:
         f.write(res.hget(jobid, 'image'))   # 'results' is a client to the results db
