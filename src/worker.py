@@ -27,7 +27,7 @@ q = HotQueue("queue", host=_redis_ip, port=6379, db=1)
 jdb = redis.Redis(host=_redis_ip, port=6379, db=2)
 '''
 
-res = redis.Redis(host=_redis_ip, port=6379, db = 3)
+res = redis.Redis(host=REDIS_IP, port=6379, db = 3)
 
 url = 'https://data.austintexas.gov/resource/fdj4-gpfu.json'
 
