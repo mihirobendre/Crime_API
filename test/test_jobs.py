@@ -13,12 +13,10 @@ from jobs import (
     q
 )
 
-_redis_ip = 'redis-db'
-_redis_port = '6379'
-# Fixture to set up Redis connection for testing
+REDIS_IP= os.environ.get('REDIS_IP')# Fixture to set up Redis connection for testing
 @pytest.fixture(scope='module')
 def redis_connection():
-    rd = redis.Redis(host=_redis_ip, port=_redis_port, db=0)
+    rd = redis.Redis(host=_redis_ip, port=6379, db=0)
     yield rd
     # Clean up Redis database after tests
     rd.flushdb()
