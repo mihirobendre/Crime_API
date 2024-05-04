@@ -112,7 +112,7 @@ def all_values_for(param):
 # for categorical parameter
 @app.route('/all_data_for/<param>/<value>', methods=['GET'])
 def all_data_for(param, value):
-"""
+    """
     Endpoint to retrieve all data where a specific parameter equals a certain value.
 
     Args:
@@ -121,7 +121,7 @@ def all_data_for(param, value):
 
     Returns:
         Dict[str, Union[str, List[Dict[str, str]]]]: A dictionary containing a message and the filtered data.
-"""    
+    """    
     limit = request.args.get('limit', None, type=int)
     offset = request.args.get('offset', 0, type=int)
     list_of_data = []
