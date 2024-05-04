@@ -122,3 +122,9 @@ Before getting started, please ensure that you have the following installed on y
 - Docker: Install Docker according to your operating system. You can find instructions on the [official Docker website](https://docs.docker.com/get-docker/).
 - Redis: enter the following in your CLI: `pip install redis`
 - Flask: enter the following in your CLI: `pip install flask`
+
+
+## Instructions for running app using Kubernetes:
+To run the app on kubernetes, do the following ...
+
+
