@@ -2,6 +2,7 @@
 import pytest
 import json
 import redis
+import os
 from jobs import (
     _generate_jid,
     _instantiate_job,
