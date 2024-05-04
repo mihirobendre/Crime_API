@@ -1,4 +1,4 @@
-import os
+'''import os
 import requests
 import pytest
 from api import hello_world
