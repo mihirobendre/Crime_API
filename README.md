@@ -15,14 +15,70 @@ This project aims to create an API endpoint for querying and analyzing Austin, T
 ## Description of Data
 The dataset contains records of incidents responded to by the Austin Police Department, with reports written from 2003 to the present. It's important to note that one incident may involve multiple offenses, but only the highest level offense is depicted in the dataset. The data is updated weekly, and due to methodological differences, results from different sources may vary. Comparisons between this dataset and other official police reports or Uniform Crime Report statistics should not be made, as the data represents only calls for police service where a report was written. Final totals may vary considerably following investigation and categorization, so caution should be exercised when interpreting the data for analytical purposes.
 
-## Instructions to build a new image from your Dockerfile
+## Prerequisites
+Before getting started, please ensure that you have the following installed on your system:
+- Docker: Install Docker according to your operating system. You can find instructions on the [official Docker website](https://docs.docker.com/get-docker/).
+- Redis: enter the following in your CLI: `pip install redis`
+- Flask: enter the following in your CLI: `pip install flask`
+
+
+## Deployment with Kubernetes
+
+After cloning this repository the Jetstream VM (or any other enviornment configured with the TACC Kubernetes cluster) the web application can be launched on the Kubernetes cluster using the `kubectl apply` command.
+For the test enviornment run
+
+```bash
+kubectl apply -f kubernetes/test/
+```
+
+For the production enviornment run
+
+```bash
+kubectl apply -f kubernetes/prod/
+```
+
+Then `kubectl get` can be used to check if the deployments, services, and ingress resources are running.
+
+```bash
+kubectl get pods
+```
+```
+ubuntu@avya-coe332-vm:~/Crime_API$ kubectl get pods
+NAME                                    READY   STATUS    RESTARTS      AGE
+flask-deployment-57b7574596-vw5xs       1/1     Running   0             41m
+redis-pvc-deployment-77fdc55c6c-d2p6z   1/1     Running   0             41m
+worker-deployment-7dcbb4d8db-cjt69      1/1     Running   2 (22m ago)   41m
+worker-deployment-7dcbb4d8db-cn7wx      1/1     Running   1 (40m ago)   41m
+worker-deployment-7dcbb4d8db-r9h9n      1/1     Running   1 (40m ago)   41m
+```
+```bash
+% kubectl get ingress
+```
+```
+NAME                 CLASS   HOSTS                    ADDRESS                                                    PORTS   AGE
+daku-flask-ingress   nginx   daku.coe332.tacc.cloud   129.114.36.240,129.114.36.49,129.114.36.83,129.114.38.92   80      43m
+```
+Now the web application should be running with a public api end point at `daku.coe332.tacc.cloud`
+
+## Software Diagram:
+![SW diagram](homework08/sw_diagram.png)
+
+## Instructions to build a new image from your Dockerfile locally
 - Build a docker image from your Dockerfile: `docker build -t crime_api .`
 - Run the docker redis server: `docker run --rm -u $(id -u):$(id -g) -p 6379:6379 -d -v $PWD/data:/data redis:7 --save 1 1`
 - (Optional) If data ownership transfer issue exists: `sudo chown ubuntu:ubuntu data/`
 
-## Instructions to launch the containerized app and Redis using docker-compose
+## Instructions to launch the containerized app and Redis using docker-compose locally
 - `docker-compose up --build -d`: to start running the docker container (flask app + redis)
 - `docker-compose down`: to stop docker container
+- `docker ps -a`: to see the existing images
+```
+CONTAINER ID   IMAGE                                COMMAND                  CREATED       STATUS       PORTS                                       NAMES
+3c338b8968c4   mihirobendre/criminal_data_app:1.0   "python3 api.py pyth…"   2 hours ago   Up 2 hours   0.0.0.0:5000->5000/tcp, :::5000->5000/tcp   crime_api_api_1
+ee0589708340   mihirobendre/jobs_worker:1.0         "python3 worker.py p…"   2 hours ago   Up 2 hours
+                            crime_api_worker_1
+331bea07cca0   redis:7                              "docker-entrypoint.s…"   2 hours ago   Up 2 hours   0.0.0.0:6379->6379/tcp, :::6379->6379/tcp   crime_api_redis-db_1
+```
 
 Note: the environment variable in the Dockerfile is currently called to be 'redis-db' but it's modifiable. Therefore, it can be changed as long as it's changed in the Dockerfile and docker-compose.yml.
 
@@ -33,6 +89,10 @@ Build app: `docker-compose up --build -d`
 Find network: `docker network ls`
 Find docker image: `docker images`
 Run pytests: `docker run --rm --network <network name> <image>:<tag> pytest`, replacing `<network name>`, `<image>`, and `<tag>` with respective values.
+
+OR, you can also simply run the following command-
+`docker-compose exec api /bin/bash`
+and then type `pytest`
 
 ## Crime API endpoints:
 
@@ -113,18 +173,5 @@ You can also use this GET method to show all the running jobs ids:
 #### Download results
 Finally, once the results have been loaded, you can use this GET method to download the resulting image:
 - `curl localhost:5000/download/<jobid> --output output.png`
-
-## Software Diagram:
-![SW diagram](homework08/sw_diagram.png)
-
-## Prerequisites
-Before getting started, please ensure that you have the following installed on your system:
-- Docker: Install Docker according to your operating system. You can find instructions on the [official Docker website](https://docs.docker.com/get-docker/).
-- Redis: enter the following in your CLI: `pip install redis`
-- Flask: enter the following in your CLI: `pip install flask`
-
-
-## Instructions for running app using Kubernetes:
-To run the app on kubernetes, do the following ...
 
 
