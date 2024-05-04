@@ -21,5 +21,5 @@ spec:
           image: mihirobendre/criminal_data_app:release
           command: [python3, worker.py]
           env:
-            - name: _redis_ip
+            - name: REDIS_IP
               value: "daku-redis-service"
