@@ -1,0 +1,25 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-deployment
+  labels:
+    app: worker-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: worker-app
+  template:
+    metadata:
+      labels:
+        app: worker-app
+    spec:
+      containers:
+        - name: worker
+          imagePullPolicy: Always
+          image: mihirobendre/criminal_data_app:test
+          command: [python3, worker.py]
+          env:
+            - name: REDIS_IP
+              value: "daku-redis-service"
