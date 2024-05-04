@@ -276,11 +276,29 @@ def download(jobid):
         f.write(res.hget(jobid, 'image'))   # 'results' is a client to the results db
     return send_file(path, mimetype='image/png', as_attachment=True)
 
+@app.route('/help', methods=['GET'])
+def help_route():
+    return "{
+    General routes:
+        /data POST: Posts data to rd database
+        /data GET: Gets data from rd database
+        /data DELETE: Deletes data from rd database
 
+        /all_values_for/<param> : Gets all possible values for a specific parameter (along w/ # occurences)
+        
+        /all_data_for/<param>/<value> : Returns all datapoints where a specific parameter equals a certain value. Works best for 
+        /all_data_for/<param>/<value>?limit=int&offset=int : Same, with limit, offset functionality
 
+        /order/<order>/<param> : Organizing data in <order> 'ascend' or 'descend', for quantitative <param>
+        /order/<order>/<param>?limit=int&offset=int : Same, with limit, offset functionality
+        
 
-
-
+    Jobs routes:
+        /jobs POST : Can post job with parameters 'job_type'(str) and 'params'(dict) 
+        /jobs : Gets list of all jobids
+        /jobs/<jobid> : Gets specific info for jobid
+        /download/<jobid> : Downloads specific jobid's resulting image.
+    }"
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 5000, debug = True)
