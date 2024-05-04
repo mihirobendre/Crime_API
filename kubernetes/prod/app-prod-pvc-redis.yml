@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: redis-williamzhang-data
+  name: redis-mihirbendre-data
 spec:
   accessModes:
     - ReadWriteOnce
